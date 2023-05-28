@@ -1,3 +1,8 @@
+#include "Ultrasonic.h"
+
+Ultrasonic ultrasonic(A0, A1);
+int distance;
+
 struct LedProperties {
   int id;
   int transitionDuration;
@@ -34,19 +39,32 @@ void ledBlink(const LedProperties& led, int blinkTimes) {
   }
 }
 
-
+void allLedsOff(){
+  for (int i = 0; i < sizeof(ledProperties) / sizeof(ledProperties[0]); i++) {
+    digitalWrite(ledProperties[i].id, LOW);
+  }
+}
 
 void setup() {
   for (int i = 0; i < sizeof(ledProperties) / sizeof(ledProperties[0]); i++) {
     pinMode(ledProperties[i].id, OUTPUT);
   }
+  Serial.begin(9600);
 }
 
 void loop() {
-  int id;
-  for (int i = 0; i < sizeof(ledProperties) / sizeof(ledProperties[0]); i++) {
-    id = ledProperties[i].id;
-    ledBlink(ledProperties[i], 10);
+  distance = ultrasonic.Ranging(CM);
+  if (distance >= 50 && distance <150){
+    allLedsOff();
+    ledOn(ledProperties[2]);
+  } else if (distance >= 20){
+    allLedsOff();
+    ledOn(ledProperties[1]);
+  } else if (distance <= 20) {
+    allLedsOff();
+    ledOn(ledProperties[0]);
+  } else {
+    allLedsOff();
   }
 }
 
